@@ -1,0 +1,1152 @@
+/* ===========================
+   0) トークン
+   =========================== */
+
+/* ---- ライトモード (デフォルト) ---- */
+:root{
+  /* ベースカラー */
+  --fg: #111;
+  --bg: #fff;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+
+  /* アクセントカラー */
+  --accent: #00b894;
+  --info: #2196f3;
+  --danger: #ff4b5c;
+
+  /* 旧ダークトークン (互換用：残してOK) */
+  --fg-d: #f3f4f6;
+  --bg-d: #0f172a;
+
+  /* スペース */
+  --sp-1: .5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+
+  /* Radius / Shadow */
+  --radius: 12px;
+  --shadow: 0 2px 10px rgba(0,0,0,.05);
+
+  /* フォントスケール */
+  --fs-1: clamp(14px, 1.2vw, 16px);
+  --fs-2: clamp(16px, 1.5vw, 18px);
+  --fs-3: clamp(20px, 2.5vw, 26px);
+
+  /* レイアウトサイズ */
+  --max: 1100px;
+  --footer-h: 64px;
+  --header-h: 72px;
+
+  /* 問題のズームサイズ (ズーム対象) */
+  --q-base: 24px;
+
+  /* 背景色 (ライト) */
+  --header-bg: #ffffff;
+  --panel-bg:  #ffffff;  /* 左：問題文エリア */
+  --side-bg:   #f9fafb;  /* 右：選択肢エリアなど */
+
+  /* 選択肢の色 (ライト) */
+  --choice-bg: #ffffff;
+  --choice-border: #d1d5db;
+  --choice-selected-bg: #e0f2fe;
+
+/* ===========================
+   白黒反転ON (ダークテーマ)
+   =========================== */
+.app[data-theme="dark"]{
+  /* ベースカラー */
+  --bg: #050816;
+  --fg: #e5e7eb;
+  --line: #111827;
+  --muted: #9ca3af;
+
+  /* 旧ダークテーマトークン (互換用：合わせて上書き) */
+  --fg-d: var(--fg);
+  --bg-d: var(--bg);
+
+  /* 背景色 (ダーク) */
+  --header-bg: #050816;
+  --panel-bg:  #0b1120;
+  --side-bg:   #020617;
+
+  /* 選択肢の色 (ダーク) */
+  --choice-bg: #020617;
+  --choice-border: #00e5ff;
+  --choice-selected-bg: #ffd7a0;
+
+  /* アクセントカラー (ダーク) */
+  --accent: #00e676;
+  --info: #ff9800;
+  --danger: #ff1744;
+
+  /* フォントスケール (ダーク) */
+  --fs-1: clamp(15px, 1.3vw, 17px);
+  --fs-2: clamp(17px, 1.6vw, 19px);
+  --fs-3: clamp(21px, 2.6vw, 27px);
+}
+
+/* テーマの基本設定 */
+.app{
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+}
+}
+
+/* ===========================
+   1) ベース
+   =========================== */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, "Segoe UI", sans-serif;
+  background:var(--bg);
+  color:var(--fg);
+  font-size:var(--fs-1);
+  line-height:1.6;
+  overflow: hidden;
+}
+
+/* ===========================
+   2) ヘッダー
+   =========================== */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:var(--sp-2);
+  border-bottom:1px solid var(--line);
+  background: var(--header-bg);
+}
+.header__left,
+.header__center,
+.header__right{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-2);
+}
+
+.header__subtitle{
+  margin-left: .75rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.brand{
+  font-weight:700;
+  font-size:var(--fs-2);
+}
+
+/* ログイン・終了画面用のシンプルなヘッダー */
+.simple-header{
+  height: 56px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  background: var(--header-bg);
+}
+
+.simple-header__left{
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+.simple-header__right{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ズーム（スライダーUI）*/
+.zoom{display:flex; align-items:center; gap:.6rem;}
+.zoom__range{width:180px;}
+.zoom__value{min-width:3.5ch; text-align:right;}
+
+/* 白黒反転トグル（ログイン・試験・終了 共通） */
+.theme-toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .85rem;
+}
+
+/* checkbox自体は非表示（見た目はスイッチ風に） */
+.theme-toggle .themeToggle{
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* スイッチの土台（横長の楕円） */
+.toggle__slider{
+  position: relative;
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+/* 丸いツマミ */
+.toggle__slider::before{
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .2s;
+}
+
+/* ONのとき */
+.themeToggle:checked + .toggle__slider{
+  background: #111;
+}
+
+.themeToggle:checked + .toggle__slider::before{
+  transform: translateX(20px);
+}
+
+/* 「白黒反転」テキスト */
+.toggle__text{
+  color: var(--muted);
+}
+
+/*残り時間を強調*/
+.remain strong{
+  color:#d32f2f;
+  font-weight:700
+}
+
+/* ===========================
+   3) レイアウト (中央エリア)
+   =========================== */
+
+/* 全体：左 | ドラッグバー | 右 の3列グリッド*/
+.layout{
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+
+  display:grid;
+  grid-template-columns:
+    70%   /* 左：問題エリア */
+    6px             /* 中央：ドラッグバー */
+    30%; /* 右：選択肢エリア */
+  gap:0;
+
+  padding-inline:var(--sp-2);
+  padding-block-start: 0;
+  padding-block-end: 0;
+
+  position:relative;
+  height:calc(100vh - var(--header-real, var(--header-h)) - var(--footer-real, var(--footer-h)));
+}
+
+
+/* ▼中央のドラッグバー（幅調整用） */
+.drag-bar {
+  width: 6px;
+  cursor: col-resize;      /* 左右に動かせるカーソル */
+  background: var(--line); /* 仕切り線と同じ色 */
+  height: 100%;
+}
+
+
+/* 左：問題文（★ここだけズーム ＋ 縦スクロールの対象） */
+.question-area{
+  padding-block:var(--sp-2);
+  padding-inline:var(--sp-2) var(--sp-3);
+  height:100%;        /* ★ レイアウトの高さに合わせる */
+  overflow-y:auto;    /* ★ この中だけ縦スクロール */
+  font-size:var(--q-base);
+  background: var(--panel-bg);
+  padding-top: var(--sp-3);
+  padding-bottom: var(--sp-4);
+}
+
+.question-area__title{
+  margin:0 0 var(--sp-2);
+  font-size:1.6em; /* ベースの 1.6倍：ズームに追随 */
+}
+.question-area__body{
+  font-size:1em;
+}
+
+/* 右：選択肢エリア*/
+.choice-area{
+  padding:0.5rem 0.3rem;
+  padding-inline: 1.5rem 1rem;
+  padding-bottom: var(--sp-4);
+
+  display:flex;
+  flex-direction:column;
+  align-items: flex-end;
+
+  background: var(--side-bg);
+}
+.choice-area__title{
+  font-size:var(--fs-2);
+  margin: 0;
+}
+
+/* 右カラムのタイトル行（チェック＋タイトル） */
+.choice-area__header{
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;   /* 左側に寄せる */
+  align-items: center;
+  gap: .5rem;                  /* □ と文字の間隔 */
+  margin: 0 0 var(--sp-2);
+}
+
+.choice-area__checkbox{
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+
+.choices{
+  list-style:none;
+  margin:0;
+  padding:0;
+
+  display:flex;
+  flex-direction:column;
+  gap:var(--sp-2);
+
+  max-width: none;
+  width: 100%;
+}
+
+/*選択肢ボタン*/
+.choice-btn{
+  width: 100%;                 /* ← 右カラム幅と一致させる */
+  max-width: 280px;            /* ← ボタンの“最大幅”だけ指定する */
+  margin-left: auto;           /* ← 完全に右側に寄る */
+
+  padding: .55rem .75rem;
+  border-radius: 4px;
+  border: 1px solid var(--choice-border);
+  background: var(--choice-bg);
+
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+/* 状態：選択中 */
+.choice-btn.is-selected{
+  border-color:var(--choice-selected-border);
+  background: var(--choice-selected-bg);
+  color: #fff;
+}
+
+/* ===== ライトモード：選択中は濃い青で固定 ===== */
+.app:not([data-theme="dark"]) .choice-btn.is-selected{
+  background:#0057b9 !important;
+  border-color:#0041a8 !important;
+  color:#ffffff !important;
+}
+
+/* ★ ライトモード hover（トークンから移動） */
+.app:not([data-theme="dark"]) .choice-btn:not(.is-selected):hover{
+  background:#f0f4ff;
+}
+
+/* 状態：ホバー（未選択）*/
+.choice-btn:not(.is-selected):hover{
+  background: color-mix(in srgb, var(--choice-bg) 80%, #ffffff);
+}
+
+/*ボタン内ラベル（ア・イ・ウ・エ）*/
+.choice-btn__label{
+  width:2.2rem;
+  height:2.2rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-weight:700;
+}
+
+/* ===========================
+   4) 状態クラス
+   =========================== */
+
+   /* リサイズ中の状態（ドラッグ中） */
+.app.is-resizing{
+  user-select: none;
+  cursor: col-resize;
+}
+
+/* 画面共通：表示・非表示の制御 */
+.screen{
+  display: none;
+}
+
+.screen.screen--active{
+  display: block;
+}
+
+/* テーマ上書き（レイアウト関連） */
+
+   /* ダーク時：ドラッグバーの色を白く */
+.app[data-theme="dark"] .drag-bar{
+  background: #ffffff;
+}
+
+/* ダーク時：未選択の選択肢ボタン */
+.app[data-theme="dark"] .choice-btn{
+  background: #020617;      /* ほぼ黒 */
+  border-color: #ffffff;    /* 外枠は白 */
+  color: #ffffff;           /* 「ア」「イ」「ウ」の文字も白 */
+}
+
+/* ダーク時：選択中の選択肢ボタン */
+.app[data-theme="dark"] .choice-btn.is-selected{
+  background: #ff9800;      /* はっきりしたオレンジ */
+  border-color: #ff9800;    /* 枠もオレンジで塗る */
+  color: #000000;           /* 中の文字は黒でコントラスト確保 */
+}
+
+/* ダーク時：ホバー時（未選択） */
+.app[data-theme="dark"] .choice-btn:not(.is-selected):hover{
+  background: #111827;      /* ちょい明るい黒に */
+}
+
+/* ===========================
+   5) フッター
+   =========================== */
+.footer{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  height:var(--footer-h);
+
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  box-shadow: none;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-inline:var(--sp-2);
+  
+}
+.footer__left,
+.footer__right{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-2);
+}
+
+/* ===========================
+   固定フッター対策（スクロール切れ防止）
+   =========================== */
+
+/* 試験画面・解答状況画面の下にフッター分の余白を確保 */
+#examScreen,
+#answerSituation{
+  padding-bottom: var(--footer-h);
+}
+
+/* ===========================
+   6) ボタン
+   =========================== */
+.btn{
+  display: inline-flex;
+  line-height: 1.8;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem .7rem;
+  border-radius:6px;
+  font-size: 0.95rem;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color: var(--fg);
+  cursor:pointer;
+  transition: background .15s, box-shadow .15s, transform .05s, border-color .15s;
+}
+
+.btn:hover:not(.btn--disabled){
+  background:#f5f5f5;
+}
+
+/* 無効状態 */
+.btn--disabled,
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 前の問題／次の問題 → グリーン */
+.btn--primary{
+  padding: .38rem .9rem;
+  border-radius: 6px;
+  background: var(--accent);
+  border-color: #009c7c;
+  color:#fff;
+}
+.btn--primary:hover:not(.btn--disabled){
+  background:color-mix(in srgb, var(--accent) 85%, white);
+}
+
+.arrow {
+  margin-right: 0.5rem;
+}
+
+/* 参考資料・解答状況など → ブルー */
+.btn--info{
+  background: var(--info);
+  border-color: var(--info);
+  color:#fff;
+}
+.btn--info:hover:not(.btn--disabled){
+  background:color-mix(in srgb, var(--info) 85%, white);
+}
+
+/* 試験終了 → ピンク寄りの赤 */
+.btn--danger{
+  background: var(--danger);
+  border-color: var(--danger);
+  color:#fff;
+}
+.btn--danger:hover:not(.btn--disabled){
+  background:color-mix(in srgb, var(--danger) 85%, white);
+}
+
+/* フッター左の「解答状況」みたいなゴースト系 */
+.btn--ghost{
+  background:transparent;
+  border-color:var(--info);
+  color:var(--info);
+}
+.btn--ghost:hover:not(.btn--disabled){
+  background:rgba(33,150,243,0.08);
+}
+
+/* 「後で見直す」が ON のとき */
+.review-active {
+  background-color: #039be5;
+  border-color: #0288d1;
+  color:#fff;
+}
+/*ブックマークアイコン*/
+.bookmark-icon {
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: .25rem;
+  vertical-align: -1px;
+  display: inline-block;
+}
+
+.bookmark-icon path { 
+  fill: #fff;
+}
+.btn--info.is-marked .bookmark-icon path {
+  fill: #ffeb3b;
+}
+
+/* ===========================
+   ダークテーマ用：終了画面のトップ戻るボタン
+   =========================== */
+
+/* 終了画面のノーマルボタン（ゴースト系） */
+.app[data-theme="dark"] .btn{
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* hover時も見える色に */
+.app[data-theme="dark"] .btn:hover:not(.btn--disabled){
+  background: rgba(255,255,255,0.08);
+}
+
+/* ===========================
+   7) モーダル（参考資料）
+   =========================== */
+.modal{
+  position: fixed;
+  inset: 0; /* 上下左右0 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+
+/* 開いているとき */
+.modal.modal--open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 背景の暗い部分 */
+.modal__backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+}
+
+/* 中央の白いボックス */
+.modal__body{
+  position: relative;
+  max-width: 720px;
+  width: 92%;
+  max-height: 80vh;
+  background: var(--bg);
+  color: var(--fg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ヘッダー（タイトル＋×ボタン） */
+.modal__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+.modal__title{
+  font-size: var(--fs-2);
+  margin: 0;
+}
+
+/* 閉じるボタン */
+.modal__close{
+  border:none;
+  background:transparent;
+  font-size: 1.4rem;
+  line-height:1;
+  cursor:pointer;
+}
+
+/* 内容エリア（スクロール可） */
+.modal__content{
+  overflow-y:auto;
+  font-size: var(--fs-1);
+  line-height:1.7;
+}
+
+.ref-title{
+  font-size: var(--fs-2);
+  margin: 0 0 .75rem;
+}
+
+.ref-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.ref-table th,
+.ref-table td{
+  border: 1px solid var(--line);
+  padding: .4rem .6rem;
+  vertical-align: top;
+}
+
+.ref-table th{
+  background: #f9fafb;
+  font-weight: 600;
+  text-align: left;
+}
+
+.ref-note{
+  font-size: .8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.ref-intro{
+  font-size: .9rem;
+  margin: 0 0 1rem;
+}
+
+.ref-paragraph{
+  font-size: .9rem;
+  margin: 0 0 .8rem;
+}
+
+/* ===========================
+   ダークテーマ用：参考資料モーダル
+   =========================== */
+
+/* モーダル本体の外枠を白く */
+.app[data-theme="dark"] .modal__body{
+  border: 1px solid #ffffff;
+}
+
+/* モーダル内テーブルの枠線を白に */
+.app[data-theme="dark"] .ref-table th,
+.app[data-theme="dark"] .ref-table td{
+  border-color: #ffffff;
+}
+
+/* テーブルの見出し行（背景少し明るく） */
+.app[data-theme="dark"] .ref-table th{
+  background: #1e293b; /* 本物に寄せた濃紺 */
+  color: #ffffff;
+}
+
+/* 見出し（h3 相当）の文字を白く */
+.app[data-theme="dark"] .ref-title{
+  color: #ffffff;
+}
+
+/* 段落の本文も色を統一 */
+.app[data-theme="dark"] .ref-paragraph,
+.app[data-theme="dark"] .ref-intro,
+.app[data-theme="dark"] .ref-note{
+  color: #e5e7eb;
+}
+
+/* ダークテーマ：モーダルの × ボタン（閉じるボタン） */
+.app[data-theme="dark"] .modal__close{
+  color: #ffffff;        /* 白文字で見えるようにする */
+}
+
+/* hover時に少し明るくして存在感アップ */
+.app[data-theme="dark"] .modal__close:hover{
+  color: #ff9800;        /* オレンジにして目立たせる（本物寄り） */
+  cursor: pointer;
+}
+
+/* ==========================
+  8) 解答状況画面
+========================== */
+.situation-title {
+  font-size: 1.4rem;
+  margin: 1.5rem auto 1rem;
+  max-width: 960px;
+  padding: 0 1rem;
+}
+
+.situation-layout {
+  max-width: 960px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+}
+
+/* 10×2 グリッド（PC） */
+.situation-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+/* ボタンの見た目 */
+.sit-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;          /* 正方形にする */
+  border-radius: 4px;
+
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.sit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+/* 状態別の色（将来用） */
+.sit-btn--answered {
+  background: #ffeb3b;
+  border-color: #f4c400;
+  color: #000;
+}
+
+.sit-btn--review {
+  background: #ffeb3b;
+  border-color: #fbc02d;
+}
+
+/*押せないボタン*/
+.sit-btn--disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* 説明・フッター */
+.situation-note {
+  max-width: 960px;
+  margin: 0 auto 1rem;
+  padding: 0 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.situation-footer {
+  max-width: 960px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  text-align: right;
+}
+
+/* チェックマーク（review） */
+.sit-btn__check {
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+  color: var(--danger);
+  font-weight: bold;
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+
+/* ===========================
+   ダークテーマ用：解答状況ボタン調整
+   =========================== */
+
+/* 全部のマスの外枠を白く（未使用の2〜20も含めて） */
+.app[data-theme="dark"] .sit-btn{
+  background: #111827;      /* 黒に近いグレー */
+  color: #ffffff;
+  border-color: #ffffff;    /* 外枠を白に */
+}
+
+/* 回答済みは黄色（数字は黒でくっきり） */
+.app[data-theme="dark"] .sit-btn--answered{
+  background: #ffeb3b;
+  color: #000;
+}
+
+/* 見直しチェックはそのまま赤 */
+.app[data-theme="dark"] .sit-btn__check{
+  color: #ff6868;
+}
+
+/* ===========================
+  9) 試験終了画面
+=========================== */
+
+.finish-simple {
+  max-width: 960px;
+  margin: 4rem auto 0;
+  padding: 0 2rem;
+}
+
+.finish-simple__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+
+.finish-simple__lead {
+  font-size: .95rem;
+  margin-bottom: .5rem;
+}
+
+.finish-simple__text {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1.8rem;
+}
+
+.finish-simple__actions {
+  margin-top: 1.5rem;
+}
+
+
+
+/* ===========================
+   10) レスポンシブ
+   =========================== */
+
+/* --- 1024px --- */
+@media(max-width: 1024px){
+  /*解答状況*/
+  .situation-grid{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* --- 960px --- */
+@media (max-width:960px){
+
+  /*レイアウト（タブレット）*/
+  .layout{
+    grid-template-columns: 1fr;
+    height: auto;
+    padding-inline: var(--sp-2);
+    padding-block-start: var(--sp-2);
+    padding-block-end: var(--footer-h);
+  }
+
+  /* ドラッグバーはスマホ・タブでは非表示でもいい*/
+  .drag-bar{
+    display: none;
+  }
+
+  /* 選択肢エリアを下側に、境界線を上に */
+  .choice-area{
+    border-left: none;
+    border-top: 1px solid var(--line);
+    margin-top: var(--sp-2);
+    padding-inline: 1rem;
+    align-items: stretch;       /* ボタンを左寄せ＆幅いっぱい */
+  }
+
+  .choice-btn{
+    max-width: none;
+    margin-left: 0;
+  }
+
+  /* ヘッダーが狭い画面で潰れないように折り返し */
+  .header{
+    flex-wrap: wrap;
+    row-gap: .5rem;
+  }
+
+  .header__left,
+  .header__right{
+    flex: 1 1 auto;
+  }
+
+  .header__center{
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --- 600px --- */
+@media (max-width: 600px) {
+
+  /* 解答状況 */
+  .situation-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sit-btn {
+    font-size: 1rem;
+  }
+
+  /* ページ全体 */
+  html, body{
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ヘッダー（スマホ）*/
+  .header{
+    flex-wrap: wrap;
+    row-gap: .4rem;
+  }
+
+  .header__left{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    order: 1;
+  }
+
+  .header__right{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: .4rem;
+    order: 2;
+  }
+
+  .header__center{
+    width: 100%;
+    justify-content: center;
+    order: 3;
+  }
+
+  /* 右側の残り時間はスマホでは非表示 */
+  .header__right .remain{
+    display: none !important;
+  }
+
+
+  .header__left::after {
+    content: attr(data-remain);
+    font-size: .9rem;
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  /* レイアウト（スマホ）*/
+  .app,
+  .screen,
+  .layout{
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .layout{
+    grid-template-columns: 1fr;
+    height: calc(100vh - var(--header-real, var(--header-h)) - var(--footer-real, var(--footer-h)));
+    padding-inline: var(--sp-2);
+    padding-block: var(--sp-2);
+  }
+
+  .question-area{
+    max-height: 45vh;
+    overflow-y: auto;
+    padding-inline: 1rem;
+  }
+
+  .choice-area{
+    border-left: none;
+    border-top: 1px solid var(--line);
+    margin-top: var(--sp-2);
+    padding-inline: 1rem;
+    align-items: stretch;
+  }
+
+  /* ▼ 選択肢：2×2 */
+  .choices{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-1);
+    width: 100%;
+  }
+
+  .choice-btn{
+    max-width: none;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  
+  /* モーダル（スマホ）*/
+  .modal__body{
+    box-sizing: border-box;
+    width: min(720px, 100vw - 1.5rem);
+    max-width: 100vw;
+    padding: 0.75rem;
+  }
+
+  .modal__content{
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+
+
+  /* スマホ：フッター2×2 */
+  #examScreen .footer,
+  #answerSituation .footer{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;                 /* ← 隙間を調整 */
+    padding: 0.5rem;              /* ← 外側の余白をここで調整 */
+
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  /* 既存の左右ラッパーが gap を持ってると“謎の隙間”が残るので無効化 */
+  #examScreen .footer__left,
+  #examScreen .footer__right,
+  #answerSituation .footer__left,
+  #answerSituation .footer__right{
+    display: contents;
+  }
+
+  /* ボタンをグリッドにフィットさせる */
+  #examScreen .footer .btn,
+  #answerSituation .footer .btn{
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 0.6rem;
+    line-height: 1.1;
+  }
+
+  /* 位置固定（IDは確認済み） */
+  #backToStatus { grid-column: 1; grid-row: 1; } /* 解答状況 */
+  #reviewButton { grid-column: 2; grid-row: 1; } /* 後で見直す */
+  #prevButton   { grid-column: 1; grid-row: 2; } /* 前の問題 */
+  #nextButton   { grid-column: 2; grid-row: 2; } /* 次の問題 */
+}
+
+/* ===========================
+   ✅ 安定化パッチ（維持用）
+   ※　既存のレイアウトを壊さないための調整
+   =========================== */
+
+/* 1) ライトモード：右カラムを白に戻す（グレー化を止める） */
+.app:not([data-theme="dark"]) .choice-area{
+  background: var(--bg);
+}
+
+/* 2) 選択中ボタン：未定義変数のせいで崩れるのを防ぐ */
+:root{
+  --choice-selected-border:#0041a8;
+}
+
+/* 3) ライトモード：選択中は「濃い青＋白文字」固定 */
+.app:not([data-theme="dark"]) .choice-btn.is-selected{
+  background:#0057b9 !important;
+  border-color:#0041a8 !important;
+  color:#fff !important;
+}
+
+/* 4) スマホ：フッター2×2の“謎の隙間”を根絶（ラッパーを完全に無効化） */
+@media (max-width: 600px){
+  #examScreen .footer__left,
+  #examScreen .footer__right,
+  #answerSituation .footer__left,
+  #answerSituation .footer__right{
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* footer内ボタン間隔は footer の gap だけで管理 */
+  #examScreen .footer,
+  #answerSituation .footer{
+    gap: .35rem !important;
+    padding: .5rem !important;
+  }
+
+  /* 5) 固定フッターに隠れないよう、メイン側に“下余白”を確保 */
+  #examScreen .layout,
+  #answerSituation .situation-layout{
+    padding-bottom: 140px;
+  }
+}
+
+.situation-remain{
+  margin-top: .5rem;
+  font-weight: 600;
+  font-size: .95rem;
+}

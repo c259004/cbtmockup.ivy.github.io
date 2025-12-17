@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>迫門道場</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script defer src="./script.js"></script>
+</head>
+
+<body class="app" data-theme="light">
+  <!--テーマ切り替えの基点 : jsがdata-themeをlight/darkに変更する-->
+
+  <!-- =========================
+       1) ログイン画面
+  ========================== -->
+  <main id="loginScreen" class="screen screen--active login-screen">
+    <!--画面切り替え : screen activeで表示制御-->
+    <header class="simple-header">
+      <div class="simple-header__left">迫門道場</div>
+      <div class="simple-header__right">
+        <label class="theme-toggle" aria-label="テーマ切り替え">
+          <input class="themeToggle" type="checkbox" />
+          <span class="toggle__slider" aria-hidden="true"></span>
+          <span class="toggle__text">白黒反転</span>
+        </label>
+      </div>
+    </header>
+
+    <div class="login-card">
+      <h1 class="login-title">迫門道場 ログイン</h1>
+      <p class="login-subtitle">
+        基本情報技術者試験 科目B 形式の<br />
+        模擬CBTを開始します。
+      </p>
+
+      <form class="login-form"><!--今回はモックアップのため、認証はしない-->
+        <label class="login-field">
+          <span class="login-label">受験番号（ニックネームでも可）</span>
+          <input type="text" class="login-input" placeholder="例）FE2024-0001" />
+        </label>
+
+        <label class="login-field">
+          <span class="login-label">パスワード</span>
+          <input type="password" class="login-input" placeholder="任意で入力" />
+        </label>
+
+        <button type="button" class="login-button" id="loginStartButton">
+          ログインして試験を開始
+        </button>
+      </form>
+
+      <p class="login-note">
+        ※ この画面は授業用の学習システムです。<br />
+        実際の試験申込・受験とは一切連動していません。
+      </p>
+    </div>
+  </main>
+
+  <!-- =========================
+       2) 問題画面（試験のメインUI）
+  ========================== -->
+  <main id="examScreen" class="screen">
+    <!-- ヘッダー（上部固定エリア）：試験中の共通操作 -->
+    <header class="header" role="banner">
+      <!-- 左：ブランド表示（トップへの導線としての見た目） -->
+      <div class="header__left">
+        <a href="#" class="brand">迫門道場</a>
+      </div>
+
+      <!-- 中央：問題文だけを拡大縮小するズーム操作(大きさは100%がデフォ、75~150まで可変) -->
+      <div class="header__center">
+        <label class="zoom">
+          <span class="zoom__label">拡大・縮小</span>
+          <input
+            id="zoomRange"
+            class="zoom__range"
+            type="range"
+            min="75"
+            max="150"
+            value="100"
+            step="5"
+          />
+          <output class="zoom__value" id="zoomValue">100%</output>
+        </label>
+      </div>
+
+      <!-- 右：テーマ切替・参考資料・終了・残り時間 -->
+      <div class="header__right">
+        <label class="theme-toggle" aria-label="テーマ切り替え">
+          <input class="themeToggle" type="checkbox" />
+          <span class="toggle__slider" aria-hidden="true"></span>
+          <span class="toggle__text">白黒反転</span>
+        </label>
+
+        <!-- 参考資料モーダルを開く -->
+        <button type="button" class="btn btn--info refButton">参考資料</button>
+        <!-- 試験終了（jsで確認を出して、終了画面へ） -->
+        <button type="button" class="btn btn--danger" id="finishExam">試験終了</button>
+
+        <!-- タイマー表示（JSで .remainText を更新。100分が正しいが、モックアップは1問のみなので5分に。） -->
+        <div class="remain">残り時間 <strong class="remainText">5:00</strong></div>
+      </div>
+    </header>
+
+    <!-- 本文：3カラム（左=問題文 / 中央=ドラッグバー / 右=選択肢） -->
+    <div class="layout">
+      <!-- 左：問題文エリア（ズーム対象 + 縦スクロール） -->
+      <section class="question-area">
+        <h2 class="question-area__title">サンプル問題</h2>
+
+        <div class="question-area__body">
+          <p>
+      次の記述中の <strong>□</strong> に入れる正しい答えを、解答群の中から選べ。
+      ここで、配列の要素番号は <strong>1 から始まる</strong> ものとする。
+    </p>
+
+    <p>
+      次の手続 <code>divide</code> は、整数型の配列 <code>data</code> に対して、
+      引数 <code>first</code> から <code>last</code> で指定された範囲の要素を
+      ある基準値を用いて左右に分割する処理を行う。
+    </p>
+
+    <p>
+      手続 <code>divide</code> を <code>divide(1, 6)</code> として呼び出したとき、
+      <strong>α</strong> の行が <strong>最初に実行された直後</strong> における
+      配列 <code>data</code> の内容は <strong>□</strong> となる。
+    </p>
+
+    <hr />
+
+    <h3>【プログラム】</h3>
+
+    <pre><code>
+大域：整数型の配列 data ← { 7, 2, 9, 4, 6, 1 }
+
+○ divide(整数型：first, 整数型：last)
+    整数型：base, left, right
+
+    base ← data[first]
+    left ← first + 1
+    right ← last
+
+    while (left ≤ right)
+        while (left ≤ last かつ data[left] &lt; base)
+            left ← left + 1
+        endwhile
+
+        while (data[right] &gt; base)
+            right ← right - 1
+        endwhile
+
+        if (left &lt; right)
+            data[left] と data[right] の値を入れ替える
+            left ← left + 1
+            right ← right - 1
+        else
+            繰返しを終了する
+        endif
+    endwhile
+
+    data[first] と data[right] の値を入れ替える
+
+    data の全要素を要素番号順に空白区切りで出力する   ← α
+</code></pre>
+
+    <hr />
+
+    <h3>【解答群】</h3>
+
+    <ul>
+      <li>ア　6 2 1 4 7 9</li>
+      <li>イ　2 1 6 4 7 9</li>
+      <li>ウ　6 2 4 1 7 9</li>
+      <li>エ　2 6 1 4 7 9</li>
+    </ul>
+        </div>
+      </section>
+
+      <!-- 中央：左右幅をドラッグで調整するバー -->
+      <div class="drag-bar" aria-hidden="true"></div>
+
+      <!-- 右：選択肢エリア（フォントサイズは固定） -->
+      <aside class="choice-area">
+        <!-- 右上：見直しチェック＋ページタイトル -->
+        <div class="choice-area__header">
+          <input type="checkbox" id="reviewCheckbox" class="choice-area__checkbox" />
+          <h3 class="choice-area__title">1ページ目</h3>
+        </div>
+
+        <!-- 選択肢（JSで .choice-btn をクリック→選択状態にする） -->
+        <ul class="choices">
+          <li><button type="button" class="choice-btn">ア</button></li>
+          <li><button type="button" class="choice-btn">イ</button></li>
+          <li><button type="button" class="choice-btn">ウ</button></li>
+          <li><button type="button" class="choice-btn">エ</button></li>
+        </ul>
+      </aside>
+    </div>
+
+    <!-- フッター：試験中の主要操作（固定表示） -->
+    <footer class="footer">
+      <div class="footer__left">
+        <!-- 解答状況画面へ -->
+        <button type="button" class="btn btn--info" id="situationButton">☰ 解答状況</button>
+      </div>
+
+      <!-- 見直しフラグをON/OFF（選択肢画面のチェック表示と連動） -->
+      <div class="footer__right">
+        <button type="button" class="btn btn--info" id="reviewButton">
+          <svg class="bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/>
+          </svg>
+          後で見直す
+        </button>
+
+        <!-- 前/次（今は disabled（薄く表示で押せない仕様に）。将来 JSで有効化する。） -->
+        <button type="button" class="btn btn--primary btn--disabled" id="prevButton">
+          <span class="arrow">⬅</span> 前の問題
+        </button>
+
+        <button type="button" class="btn btn--primary btn--disabled" id="nextButton">
+          <span class="arrow">➡</span> 次の問題
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- =========================
+       3) 参考資料モーダル
+  ========================== -->
+  <div class="modal" id="refModal" aria-hidden="true">
+    <div class="modal__backdrop"></div>
+
+    <div class="modal__body" role="dialog" aria-modal="true" aria-labelledby="refModalTitle">
+      <header class="modal__header">
+        <h2 class="modal__title" id="refModalTitle">擬似言語の注意事項</h2>
+        <button type="button" class="modal__close" id="refModalClose" aria-label="閉じる">×</button>
+      </header>
+
+      <div class="modal__content">
+        <p class="ref-intro">
+          このページでは、基本情報技術者試験・応用情報技術者試験で
+          擬似言語の問題に共通して用いられる記述ルールをまとめています。
+          問題文に特別な断りがない場合は、ここで示した形式が前提になります。
+        </p>
+
+        <h3 class="ref-title">擬似言語の記述形式（要点）</h3>
+        <table class="ref-table">
+          <thead>
+            <tr><th>記述形式</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>procedure 手続き名（引数…）</td><td>手続きを定義する。値は返さず、処理だけ行う。</td></tr>
+            <tr><td>function 関数名（引数…）</td><td>関数を定義する。処理の結果として値を 1 つ返す。</td></tr>
+            <tr><td>変数名 ← 式</td><td>右辺の式を評価し、その結果を左辺の変数に代入する。</td></tr>
+            <tr>
+              <td>if ～ elseif ～ else ～ endif</td>
+              <td>条件を上から順に評価し、はじめて真になった条件に対応する処理だけを実行する。</td>
+            </tr>
+            <tr>
+              <td>while（条件） do ～ endwhile</td>
+              <td>ループ先頭で条件を判定し、条件が真の間は処理を繰り返す。</td>
+            </tr>
+            <tr>
+              <td>do ～ while（条件）</td>
+              <td>まず処理を 1 回実行してから条件を判定する。</td>
+            </tr>
+            <tr>
+              <td>for（制御式） do ～ endfor</td>
+              <td>カウンタ変数に初期値・増分・終了条件を与え、決まった回数だけ処理を繰り返す。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="ref-title">演算子と優先順位（要点）</h3>
+        <table class="ref-table">
+          <thead>
+            <tr><th>演算子の種類</th><th>演算子</th><th>優先度</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>式</td><td>() , .</td><td>最も高い</td></tr>
+            <tr><td>単項演算子</td><td>not , ＋ , －</td><td>高い</td></tr>
+            <tr><td>二項演算子（乗除）</td><td>× , ÷ , mod</td><td>中</td></tr>
+            <tr><td>二項演算子（加減）</td><td>＋ , －</td><td>中</td></tr>
+            <tr><td>関係演算子</td><td>＝ , ≠ , ＜ , ≦ , ＞ , ≧</td><td>低め</td></tr>
+            <tr><td>論理演算子</td><td>and , or</td><td>最も低い</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="ref-title">論理型の定数</h3>
+        <p class="ref-paragraph">
+          論理型（真偽値）には <code>true</code> と <code>false</code> の 2 種類の値を用いる。
+        </p>
+
+        <h3 class="ref-title">配列</h3>
+        <p class="ref-paragraph">
+          配列の要素には、名前の後ろに角かっこ <code>[ ]</code> を付け、かっこの中に要素番号（インデックス）を書く。
+        </p>
+
+        <h3 class="ref-title">未定義・未走査の値</h3>
+        <p class="ref-paragraph">
+          まだ値が代入されていない変数は「未定義」とみなし、未定義の変数を利用すると計算結果が決まらない。
+        </p>
+
+        <p class="ref-note">
+          ※ 正確な仕様やより詳しい説明は、IPA が公開している「擬似言語の記述形式」を参照してください。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       4) 解答状況画面
+  ========================== -->
+  <!-- 試験画面と同一構造だが、jsで動作する有効なUI -->
+  <main id="answerSituation" class="screen">
+    <header class="header">
+      <div class="header__left">
+        <a href="#" class="brand">迫門道場</a>
+        <span class="header__subtitle">解答状況</span>
+      </div>
+
+      <div class="header__right">
+        <label class="theme-toggle" aria-label="テーマ切り替え">
+          <input class="themeToggle" type="checkbox" />
+          <span class="toggle__slider" aria-hidden="true"></span>
+          <span class="toggle__text">白黒反転</span>
+        </label>
+
+        <button type="button" class="btn btn--info refButton">参考資料</button>
+        <button type="button" class="btn btn--danger" id="finishExamFromStatus">試験終了</button>
+
+        <div class="remain">残り時間 <strong class="remainText">5:00</strong></div>
+      </div>
+    </header>
+
+    <h2 class="situation-title">解答状況（現在 1問目）</h2>
+
+    <div class="situation-layout">
+      <!-- 解答状況の一覧（ボタンはJSで動的生成） -->
+      <div class="situation-grid">
+      </div>
+    </div>
+
+    <p class="situation-note">※ 青＝回答済 / 黄＝後で見直す / 白＝未回答</p>
+    <!-- 解答状況画面用のフッター（戻るボタンで直前の問題に戻ることができる） -->
+    <div class="situation-footer">
+      <button type="button" class="btn" id="backToExamButton">問題に戻る</button>
+    </div>
+  </main>
+
+  <!-- =========================
+       5) 試験終了画面
+  ========================== -->
+  <main id="finishScreen" class="screen">
+    <header class="simple-header">
+      <div class="simple-header__left">迫門道場 試験終了</div>
+      <div class="simple-header__right">
+        <label class="theme-toggle" aria-label="テーマ切り替え">
+          <input class="themeToggle" type="checkbox" />
+          <span class="toggle__slider" aria-hidden="true"></span>
+          <span class="toggle__text">白黒反転</span>
+        </label>
+      </div>
+    </header>
+
+    <section class="finish-simple">
+      <h1 class="finish-simple__title">試験を終了しました</h1>
+      <p class="finish-simple__lead">お疲れさまでした。今回の受験はこれで終了です。</p>
+      <p class="finish-simple__text">
+        画面下の「トップ画面に戻る」ボタンから、ログイン画面に戻ることができます。<br>
+        ※こちらはCBTアプリのモックアップのため、正誤結果が表示されない仕様となっております。<br>
+        ※ちなみに正解はアでした！おかしいところがあったら教えてね。
+      </p>
+
+      <!-- JSで「トップへ戻る」ボタンから loginScreen に戻す -->
+      <div class="finish-simple__actions">
+        <button type="button" class="btn" id="backToTop">トップ画面に戻る</button>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
